@@ -23,7 +23,7 @@ It is designed to be fast, simple, and predictable:
 * `tart "message"` → appends a task entry for today
 * `tart --today` or `tart -t` → shows today's entries
 * `tart --this-week` or `tart -tw` → shows current week
-* `tart --week YYYY-Www` → shows a specific ISO week
+* `tart --week YYYY-MM-DD` → shows the log file for that week
 
 ---
 
@@ -84,10 +84,10 @@ tart --this-week
 tart -tw
 ```
 
-Show a specific week:
+Show a specific week file:
 
 ```bash
-tart --week 2026-W13
+tart --week 2026-03-23
 ```
 
 ---
@@ -100,16 +100,16 @@ Default location:
 ~/Documents/tart
 ```
 
+Each week is stored in its own file, named after the Monday of that week:
+
+```bash
+2026-03-23.log
+```
+
 Override with environment variable:
 
 ```bash
 export TART_LOGDIR="$HOME/somewhere/tart"
-```
-
-File format:
-
-```bash
-YYYY-Www.log
 ```
 
 Entry format:
