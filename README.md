@@ -17,13 +17,21 @@ It keeps the daily workflow fast, while presenting a more predictable CLI surfac
 
 ## Installation
 
+### Linux
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/dawidpolakowski/tart/main/scripts/install.sh | bash
+```
+
 ### macOS
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/dawidpolakowski/tart/main/scripts/install.sh | bash
 ```
 
-The installer puts `tart` in:
+### Linux and macOS Details
+
+The shell installer puts `tart` in:
 
 ```text
 ~/.local/bin/tart
