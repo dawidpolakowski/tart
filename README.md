@@ -1,68 +1,59 @@
-# 🥧 tart
+# tart
 
-`tart` is a lightweight CLI tool for logging task activity.
+`tart` is a lightweight command-line tool for logging task activity.
 
-It is designed to be fast, simple, and predictable:
+It keeps the daily workflow fast, while presenting a more predictable CLI surface:
 
-* no dependencies
+* command-based interface
+* backwards-compatible quick logging
 * file-based storage
-* human-readable logs
-* minimal friction for daily use
-
----
+* human-readable weekly logs
+* strict date and ISO week validation
+* configurable log directory
 
 ## Screenshot
 
 ![tart screenshot](./src/Screenshot.png)
 
----
-
-## What it does
-
-* `tart` → shows the current week's log
-* `tart "message"` → appends a task entry for today
-* `tart --today` or `tart -t` → shows today's entries
-* `tart --this-week` or `tart -tw` → shows current week
-* `tart --week YYYY-MM-DD` → shows the log file for that week
-
----
-
 ## Installation
 
-### Option 1 — Clone repository
+Clone the repository and install the executable:
 
 ```bash
 git clone https://github.com/dawidpolakowski/tart.git
 cd tart
-chmod +x tart.sh
-cp tart.sh ~/bin/tart
+install -m 0755 tart.sh "$HOME/bin/tart"
 ```
 
-Make sure `~/bin` is in your PATH:
+Make sure `~/bin` is in your `PATH`:
 
 ```bash
 export PATH="$HOME/bin:$PATH"
 ```
 
----
-
-### Option 2 — One-line install (recommended)
+One-line install:
 
 ```bash
-curl -sL https://raw.githubusercontent.com/dawidpolakowski/tart/main/tart.sh -o /usr/local/bin/tart && chmod +x /usr/local/bin/tart
+curl -fsSL https://raw.githubusercontent.com/dawidpolakowski/tart/main/tart.sh -o /usr/local/bin/tart
+chmod +x /usr/local/bin/tart
 ```
-
----
 
 ## Usage
 
-Show current week:
+Show the current week's log:
 
 ```bash
 tart
+tart list
 ```
 
-Add a new entry:
+Add a task entry:
+
+```bash
+tart add "implemented login feature"
+```
+
+Quick logging is still supported:
 
 ```bash
 tart "implemented login feature"
@@ -71,67 +62,120 @@ tart "implemented login feature"
 Show today's entries:
 
 ```bash
+tart today
 tart --today
-# or
-tart -t
 ```
 
-Show current week explicitly:
+Show a specific week:
 
 ```bash
-tart --this-week
-# or
-tart -tw
+tart week 2026-04-30
+tart list --week 2026-W18
 ```
 
-Show a specific week file:
+Print the resolved log path:
 
 ```bash
-tart --week 2026-03-23
+tart path
+tart path 2026-W18
 ```
 
----
+Show configuration:
 
-## Data storage
+```bash
+tart config
+```
 
-Default location:
+## Commands
+
+```text
+tart add <message...>             Add a task entry for today
+tart list [--week <ref>]          Show entries for a week
+tart today                        Show today's entries
+tart week [<ref>]                 Show entries for the week containing <ref>
+tart path [<ref>]                 Print the log file path for a week
+tart init                         Create the log directory
+tart config                       Show resolved configuration
+tart version                      Show version
+tart help                         Show help
+```
+
+Legacy aliases are still available:
+
+```text
+tart -t | --today
+tart -tw | --this-week
+tart --week <ref>
+```
+
+## Week References
+
+Week commands accept either:
+
+```text
+YYYY-MM-DD
+YYYY-Www
+```
+
+Date references can be any date in the target week. `tart` resolves them to the Monday log file for that ISO week.
+
+Examples:
+
+```bash
+tart week 2026-04-30
+tart week 2026-W18
+```
+
+Both resolve to:
+
+```text
+2026-04-27.log
+```
+
+## Configuration
+
+Default log directory:
 
 ```bash
 ~/Documents/tart
 ```
 
-Each week is stored in its own file, named after the Monday of that week:
-
-```bash
-2026-03-23.log
-```
-
-Override with environment variable:
+Override it for your shell:
 
 ```bash
 export TART_LOGDIR="$HOME/somewhere/tart"
 ```
 
-Entry format:
+Override it for one command:
 
 ```bash
+tart --log-dir "$HOME/tmp/tart" add "tested release candidate"
+```
+
+## Data Format
+
+Each week is stored in its own file, named after the Monday of that week:
+
+```text
+2026-04-27.log
+```
+
+Entries are plain text:
+
+```text
 YYYY-MM-DD <message>
 ```
 
----
+Example:
 
-## Example
-
-```bash
-2026-03-23 implemented login feature
-2026-03-24 fixed auth bug
-2026-03-24 reviewed API changes
+```text
+2026-04-27 implemented login feature
+2026-04-28 fixed auth bug
+2026-04-30 reviewed API changes
 ```
-
----
 
 ## Philosophy
 
 `tart` tracks what you did, not how long it took.
 
-It is a small tool designed to stay out of your way and make logging and reviewing work effortless.
+It is intentionally small, dependency-free, and easy to inspect, but the command surface is structured enough to feel reliable in day-to-day professional use.
