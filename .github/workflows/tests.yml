@@ -27,7 +27,41 @@ jobs:
         run: |
           bash -n tart.sh
           bash -n tests/run.sh
+          bash -n scripts/install.sh
+
+      - name: Check PowerShell installer syntax
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile("scripts/install.ps1", [ref]$tokens, [ref]$errors) | Out-Null
+          if ($errors -and $errors.Count -gt 0) {
+            $errors | Format-List
+            exit 1
+          }
 
       - name: Run tests
         shell: bash
         run: ./tests/run.sh
+
+      - name: Smoke test installer
+        shell: bash
+        run: |
+          install_dir="$(mktemp -d)"
+          TART_INSTALL_DIR="$install_dir" ./scripts/install.sh
+          "$install_dir/tart" version
+
+  windows-installer:
+    name: Windows Installer
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install tart
+        shell: pwsh
+        run: |
+          $installDir = Join-Path $env:RUNNER_TEMP "tart-bin"
+          ./scripts/install.ps1 -InstallDir $installDir -NoPathUpdate
+          & (Join-Path $installDir "tart.cmd") version

@@ -17,25 +17,62 @@ It keeps the daily workflow fast, while presenting a more predictable CLI surfac
 
 ## Installation
 
-Clone the repository and install the executable:
+### macOS
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/dawidpolakowski/tart/main/scripts/install.sh | bash
+```
+
+The installer puts `tart` in:
+
+```text
+~/.local/bin/tart
+```
+
+If `~/.local/bin` is not already in your `PATH`, the installer prints the exact line to add to your shell profile.
+
+Install from a local clone:
 
 ```bash
 git clone https://github.com/dawidpolakowski/tart.git
 cd tart
-install -m 0755 tart.sh "$HOME/bin/tart"
+./scripts/install.sh
 ```
 
-Make sure `~/bin` is in your `PATH`:
+Choose another install directory:
 
 ```bash
-export PATH="$HOME/bin:$PATH"
+TART_INSTALL_DIR="$HOME/bin" ./scripts/install.sh
 ```
 
-One-line install:
+### Windows
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/dawidpolakowski/tart/main/tart.sh -o /usr/local/bin/tart
-chmod +x /usr/local/bin/tart
+Install Git for Windows first, because `tart` runs through Git Bash on Windows.
+
+Then run this in PowerShell:
+
+```powershell
+irm https://raw.githubusercontent.com/dawidpolakowski/tart/main/scripts/install.ps1 | iex
+```
+
+The installer puts `tart` in:
+
+```text
+%LOCALAPPDATA%\tart\bin
+```
+
+It also adds that directory to your user `PATH`. Open a new terminal after installation, then run:
+
+```powershell
+tart version
+```
+
+Install from a local clone:
+
+```powershell
+git clone https://github.com/dawidpolakowski/tart.git
+cd tart
+powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1
 ```
 
 ## Usage
