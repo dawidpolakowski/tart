@@ -13,7 +13,18 @@ LAST_STATUS=0
 TEST_TMPDIR=""
 
 new_log_dir() {
-  mktemp -d "${TMPDIR:-/private/tmp}/tart-test.XXXXXX"
+  local candidate base
+
+  for candidate in "${TMPDIR:-}" "${TMP:-}" "${TEMP:-}" /tmp /private/tmp; do
+    if [[ -n "$candidate" && -d "$candidate" ]]; then
+      base="${candidate%/}"
+      mktemp -d "${base}/tart-test.XXXXXX"
+      return
+    fi
+  done
+
+  printf 'no usable temporary directory found\n' >&2
+  return 1
 }
 
 cleanup_log_dir() {
@@ -25,6 +36,12 @@ cleanup_log_dir() {
 run_tart() {
   local log_dir="$1"
   shift
+
+  if [[ -z "$log_dir" ]]; then
+    LAST_OUTPUT="test harness error: empty log directory"
+    LAST_STATUS=99
+    return
+  fi
 
   LAST_OUTPUT="$(TART_LOGDIR="$log_dir" TART_TODAY="$TEST_TODAY" "$TART_BIN" "$@" 2>&1)"
   LAST_STATUS=$?
@@ -81,6 +98,11 @@ assert_file_eq() {
 write_week_log() {
   local log_dir="$1"
   local content="$2"
+
+  if [[ -z "$log_dir" ]]; then
+    printf 'test harness error: empty log directory\n' >&2
+    return 1
+  fi
 
   mkdir -p "$log_dir"
   printf '%s\n' "$content" > "${log_dir}/${TEST_WEEK_START}.log"
@@ -226,8 +248,12 @@ run_test() {
   local name="$1"
   local fn="$2"
 
-  TEST_TMPDIR="$(new_log_dir)"
   printf 'test %-48s' "$name"
+  if ! TEST_TMPDIR="$(new_log_dir)"; then
+    FAIL_COUNT=$((FAIL_COUNT + 1))
+    printf 'FAIL\n'
+    return
+  fi
 
   if "$fn"; then
     PASS_COUNT=$((PASS_COUNT + 1))
