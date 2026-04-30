@@ -174,6 +174,16 @@ Example:
 2026-04-30 reviewed API changes
 ```
 
+## Development
+
+Run the test suite:
+
+```bash
+./tests/run.sh
+```
+
+The tests are dependency-free Bash smoke and regression tests. They use isolated temporary log directories and pin the current date with `TART_TODAY`.
+
 ## Philosophy
 
 `tart` tracks what you did, not how long it took.

@@ -79,6 +79,12 @@ ensure_tart_dirs() {
 }
 
 today_date() {
+  if [[ -n "${TART_TODAY:-}" ]]; then
+    date_is_valid "$TART_TODAY" || usage_error "invalid TART_TODAY: ${TART_TODAY}"
+    printf '%s\n' "$TART_TODAY"
+    return 0
+  fi
+
   date +%F
 }
 
@@ -395,14 +401,23 @@ parse_global_options() {
 
 main() {
   parse_global_options "$@"
-  set -- "${TART_ARGS[@]}"
+  if ((${#TART_ARGS[@]} > 0)); then
+    set -- "${TART_ARGS[@]}"
+  else
+    set --
+  fi
 
   if [[ "$TART_FORCE_ADD" == "1" ]]; then
     cmd_add "$@"
     return 0
   fi
 
-  local command="${1:-list}"
+  if (($# == 0)); then
+    show_week_entries
+    return 0
+  fi
+
+  local command="$1"
 
   case "$command" in
     -h|--help|help|\?)
