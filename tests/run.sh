@@ -85,6 +85,15 @@ assert_file_exists() {
   fi
 }
 
+assert_file_missing() {
+  local path="$1"
+
+  if [[ -e "$path" ]]; then
+    printf 'expected path to be missing: %s\n' "$path" >&2
+    return 1
+  fi
+}
+
 assert_file_eq() {
   local path="$1"
   local expected="$2"
@@ -117,6 +126,39 @@ test_help_and_version() {
   run_tart "$TEST_TMPDIR" version
   assert_status 0 || return 1
   assert_eq "tart 0.2.0" "$LAST_OUTPUT"
+}
+
+test_command_help_aliases_are_consistent() {
+  run_tart "$TEST_TMPDIR" add --help
+  assert_status 0 || return 1
+  assert_contains "$LAST_OUTPUT" "Commands:" || return 1
+  assert_file_missing "${TEST_TMPDIR}/${TEST_WEEK_START}.log" || return 1
+
+  run_tart "$TEST_TMPDIR" today --help
+  assert_status 0 || return 1
+  assert_contains "$LAST_OUTPUT" "Usage:" || return 1
+
+  run_tart "$TEST_TMPDIR" init --help
+  assert_status 0 || return 1
+  assert_contains "$LAST_OUTPUT" "Global options:" || return 1
+
+  run_tart "$TEST_TMPDIR" config --help
+  assert_status 0 || return 1
+  assert_contains "$LAST_OUTPUT" "Environment:" || return 1
+
+  run_tart "$TEST_TMPDIR" version --help
+  assert_status 0 || return 1
+  assert_contains "$LAST_OUTPUT" "Usage:" || return 1
+}
+
+test_help_and_version_reject_extra_args() {
+  run_tart "$TEST_TMPDIR" help extra
+  assert_status 2 || return 1
+  assert_contains "$LAST_OUTPUT" "help does not accept arguments" || return 1
+
+  run_tart "$TEST_TMPDIR" version extra
+  assert_status 2 || return 1
+  assert_contains "$LAST_OUTPUT" "version does not accept arguments"
 }
 
 test_init_creates_log_dir() {
@@ -244,6 +286,13 @@ test_missing_add_message_returns_usage_error() {
   assert_contains "$LAST_OUTPUT" "missing entry message"
 }
 
+test_multiline_add_message_returns_usage_error() {
+  run_tart "$TEST_TMPDIR" add $'first line\nsecond line'
+  assert_status 2 || return 1
+  assert_contains "$LAST_OUTPUT" "entry message must be a single line" || return 1
+  assert_file_missing "${TEST_TMPDIR}/${TEST_WEEK_START}.log"
+}
+
 run_test() {
   local name="$1"
   local fn="$2"
@@ -269,6 +318,8 @@ run_test() {
 
 main() {
   run_test "help and version" test_help_and_version
+  run_test "command help aliases" test_command_help_aliases_are_consistent
+  run_test "help/version extra args" test_help_and_version_reject_extra_args
   run_test "init creates log dir" test_init_creates_log_dir
   run_test "add writes to current week file" test_add_writes_to_current_week_file
   run_test "quick add remains compatible" test_quick_add_remains_backwards_compatible
@@ -282,6 +333,7 @@ main() {
   run_test "invalid date errors" test_invalid_date_returns_usage_error
   run_test "invalid ISO week errors" test_invalid_iso_week_returns_usage_error
   run_test "missing add message errors" test_missing_add_message_returns_usage_error
+  run_test "multiline add message errors" test_multiline_add_message_returns_usage_error
 
   printf '\n%s passed, %s failed\n' "$PASS_COUNT" "$FAIL_COUNT"
 

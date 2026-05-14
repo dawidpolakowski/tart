@@ -74,6 +74,22 @@ require_no_args() {
   fi
 }
 
+is_help_flag() {
+  case "${1:-}" in
+    -h|--help) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+maybe_print_help() {
+  if (($# == 1)) && is_help_flag "$1"; then
+    print_usage
+    return 0
+  fi
+
+  return 1
+}
+
 ensure_tart_dirs() {
   mkdir -p "$TART_LOGDIR"
 }
@@ -239,6 +255,10 @@ append_tart_entry() {
     usage_error "missing entry message"
   fi
 
+  if [[ "$entry" == *$'\n'* || "$entry" == *$'\r'* ]]; then
+    usage_error "entry message must be a single line"
+  fi
+
   today="$(today_date)"
   week_start="$(week_start_from_ref "$today")"
   file="$(log_file_for_week_start "$week_start")"
@@ -280,6 +300,12 @@ show_today_entries() {
 cmd_add() {
   if [[ "${1:-}" == "--" ]]; then
     shift
+    append_tart_entry "$@"
+    return 0
+  fi
+
+  if [[ "$TART_FORCE_ADD" != "1" ]] && maybe_print_help "$@"; then
+    return 0
   fi
 
   append_tart_entry "$@"
@@ -288,12 +314,12 @@ cmd_add() {
 cmd_list() {
   local week_ref=""
 
+  if maybe_print_help "$@"; then
+    return 0
+  fi
+
   while (($# > 0)); do
     case "$1" in
-      -h|--help)
-        print_usage
-        return 0
-        ;;
       --week)
         shift
         if [[ -z "${1:-}" ]]; then
@@ -318,13 +344,16 @@ cmd_list() {
 }
 
 cmd_today() {
+  if maybe_print_help "$@"; then
+    return 0
+  fi
+
   require_no_args "today" "$@"
   show_today_entries
 }
 
 cmd_week() {
-  if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
-    print_usage
+  if maybe_print_help "$@"; then
     return 0
   fi
 
@@ -336,8 +365,7 @@ cmd_week() {
 }
 
 cmd_path() {
-  if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
-    print_usage
+  if maybe_print_help "$@"; then
     return 0
   fi
 
@@ -349,6 +377,10 @@ cmd_path() {
 }
 
 cmd_init() {
+  if maybe_print_help "$@"; then
+    return 0
+  fi
+
   require_no_args "init" "$@"
   ensure_tart_dirs
   printf 'Initialized tart log directory: %s\n' "$TART_LOGDIR"
@@ -356,6 +388,10 @@ cmd_init() {
 
 cmd_config() {
   local current_week current_file
+
+  if maybe_print_help "$@"; then
+    return 0
+  fi
 
   require_no_args "config" "$@"
   current_week="$(week_start_from_ref)"
@@ -365,6 +401,33 @@ cmd_config() {
   printf 'log_dir=%s\n' "$TART_LOGDIR"
   printf 'current_week=%s\n' "$current_week"
   printf 'current_file=%s\n' "$current_file"
+}
+
+cmd_help() {
+  if maybe_print_help "$@"; then
+    return 0
+  fi
+
+  require_no_args "help" "$@"
+  print_usage
+}
+
+cmd_version() {
+  if maybe_print_help "$@"; then
+    return 0
+  fi
+
+  require_no_args "version" "$@"
+  print_version
+}
+
+cmd_this_week() {
+  if maybe_print_help "$@"; then
+    return 0
+  fi
+
+  require_no_args "this-week" "$@"
+  show_week_entries
 }
 
 parse_global_options() {
@@ -418,64 +481,53 @@ main() {
   fi
 
   local command="$1"
+  shift
 
   case "$command" in
     -h|--help|help|\?)
-      print_usage
+      cmd_help "$@"
       ;;
     -v|--version|version)
-      print_version
+      cmd_version "$@"
       ;;
     -t|--today)
-      shift
-      require_no_args "today" "$@"
-      show_today_entries
+      cmd_today "$@"
       ;;
     -tw|--this-week)
-      shift
-      require_no_args "this-week" "$@"
-      show_week_entries
+      cmd_this_week "$@"
       ;;
     --week)
-      shift
       if [[ -z "${1:-}" ]]; then
         usage_error "missing value for --week"
       fi
       cmd_week "$@"
       ;;
     add|log)
-      shift
       cmd_add "$@"
       ;;
     list|show)
-      shift
       cmd_list "$@"
       ;;
     today)
-      shift
       cmd_today "$@"
       ;;
     week)
-      shift
       cmd_week "$@"
       ;;
     path)
-      shift
       cmd_path "$@"
       ;;
     init)
-      shift
       cmd_init "$@"
       ;;
     config|doctor)
-      shift
       cmd_config "$@"
       ;;
     --*|-*)
       usage_error "unknown option: ${command}"
       ;;
     *)
-      cmd_add "$@"
+      cmd_add "$command" "$@"
       ;;
   esac
 }
