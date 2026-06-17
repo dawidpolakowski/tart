@@ -1,0 +1,20 @@
+{
+  "name": "tart",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Task Activity Reporting Tool",
+  "main": "desktop/main.cjs",
+  "scripts": {
+    "desktop": "electron .",
+    "icons": "node scripts/generate-icons.mjs",
+    "start": "npm run desktop",
+    "test": "./tests/run.sh",
+    "test:desktop": "node tests/test_desktop_core.mjs && node tests/test_desktop_renderer.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "electron": "^42.4.1"
+  }
+}

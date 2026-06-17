@@ -85,6 +85,17 @@ assert_file_exists() {
   fi
 }
 
+assert_file_nonempty() {
+  local path="$1"
+
+  assert_file_exists "$path" || return 1
+
+  if [[ ! -s "$path" ]]; then
+    printf 'expected file to be non-empty: %s\n' "$path" >&2
+    return 1
+  fi
+}
+
 assert_file_missing() {
   local path="$1"
 
@@ -293,6 +304,52 @@ test_multiline_add_message_returns_usage_error() {
   assert_file_missing "${TEST_TMPDIR}/${TEST_WEEK_START}.log"
 }
 
+test_desktop_core_suite() {
+  node "${ROOT_DIR}/tests/test_desktop_core.mjs"
+}
+
+test_desktop_renderer_suite() {
+  node "${ROOT_DIR}/tests/test_desktop_renderer.mjs"
+}
+
+test_desktop_icon_assets_exist() {
+  assert_file_nonempty "${ROOT_DIR}/assets/tart-clock-icon.png" || return 1
+  assert_file_nonempty "${ROOT_DIR}/assets/tart-clock-icon.icns" || return 1
+  assert_file_nonempty "${ROOT_DIR}/assets/tart-clock-icon.ico"
+}
+
+test_macos_installer_smoke() {
+  local app_dir bin_dir output support_dir
+
+  if [[ "$(uname -s)" != "Darwin" ]]; then
+    return 0
+  fi
+
+  bin_dir="${TEST_TMPDIR}/bin"
+  app_dir="${TEST_TMPDIR}/Applications"
+  support_dir="${TEST_TMPDIR}/Application Support/tart"
+
+  output="$(
+    TART_INSTALL_DIR="$bin_dir" \
+      TART_MACOS_APP_DIR="$app_dir" \
+      TART_MACOS_SUPPORT_DIR="$support_dir" \
+      TART_SKIP_NPM_INSTALL=1 \
+      "${ROOT_DIR}/scripts/install-macos.sh" 2>&1
+  )" || {
+    printf '%s\n' "$output" >&2
+    return 1
+  }
+
+  assert_file_nonempty "${bin_dir}/tart" || return 1
+  assert_file_nonempty "${support_dir}/tart-desktop" || return 1
+  assert_file_nonempty "${support_dir}/desktop/main.cjs" || return 1
+  assert_file_nonempty "${app_dir}/tart.app/Contents/MacOS/tart" || return 1
+  assert_file_nonempty "${app_dir}/tart.app/Contents/Info.plist" || return 1
+  assert_file_nonempty "${app_dir}/tart.app/Contents/Resources/tart-clock-icon.icns" || return 1
+
+  assert_eq "tart 0.2.0" "$("${bin_dir}/tart" version)"
+}
+
 run_test() {
   local name="$1"
   local fn="$2"
@@ -334,6 +391,10 @@ main() {
   run_test "invalid ISO week errors" test_invalid_iso_week_returns_usage_error
   run_test "missing add message errors" test_missing_add_message_returns_usage_error
   run_test "multiline add message errors" test_multiline_add_message_returns_usage_error
+  run_test "desktop core suite" test_desktop_core_suite
+  run_test "desktop renderer suite" test_desktop_renderer_suite
+  run_test "desktop icon assets" test_desktop_icon_assets_exist
+  run_test "macOS installer smoke" test_macos_installer_smoke
 
   printf '\n%s passed, %s failed\n' "$PASS_COUNT" "$FAIL_COUNT"
 

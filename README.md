@@ -20,16 +20,56 @@ It keeps the daily workflow fast, while presenting a more predictable CLI surfac
 ### Linux
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/dawidpolakowski/tart/main/scripts/install.sh | bash
+curl -fsSL https://github.com/dawidpolakowski/tart/releases/latest/download/install.sh | bash
 ```
 
 ### macOS
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/dawidpolakowski/tart/main/scripts/install.sh | bash
+curl -fsSL https://github.com/dawidpolakowski/tart/releases/latest/download/install-macos.sh | bash
 ```
 
-### Linux and macOS Details
+The macOS installer puts the CLI in:
+
+```text
+~/.local/bin/tart
+```
+
+It also installs the desktop app in:
+
+```text
+~/Applications/tart.app
+```
+
+The desktop app files live in:
+
+```text
+~/Library/Application Support/tart
+```
+
+The desktop app needs Node.js and npm so the installer can install Electron dependencies. The CLI works without Node.js.
+
+Install from a local clone:
+
+```bash
+git clone https://github.com/dawidpolakowski/tart.git
+cd tart
+./scripts/install-macos.sh
+```
+
+Choose another CLI install directory:
+
+```bash
+TART_INSTALL_DIR="$HOME/bin" ./scripts/install-macos.sh
+```
+
+Choose another desktop app directory:
+
+```bash
+TART_MACOS_APP_DIR="$HOME/Desktop" ./scripts/install-macos.sh
+```
+
+### Linux Details
 
 The shell installer puts `tart` in:
 
@@ -60,7 +100,7 @@ Install Git for Windows first, because `tart` runs through Git Bash on Windows.
 Then run this in PowerShell:
 
 ```powershell
-irm https://raw.githubusercontent.com/dawidpolakowski/tart/main/scripts/install.ps1 | iex
+irm https://github.com/dawidpolakowski/tart/releases/latest/download/install.ps1 | iex
 ```
 
 The installer puts `tart` in:
@@ -82,6 +122,19 @@ git clone https://github.com/dawidpolakowski/tart.git
 cd tart
 powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1
 ```
+
+### Release Downloads
+
+Latest release assets:
+
+* [Shell installer](https://github.com/dawidpolakowski/tart/releases/latest/download/install.sh)
+* [macOS installer](https://github.com/dawidpolakowski/tart/releases/latest/download/install-macos.sh)
+* [PowerShell installer](https://github.com/dawidpolakowski/tart/releases/latest/download/install.ps1)
+* [Linux archive](https://github.com/dawidpolakowski/tart/releases/latest/download/tart-linux.tar.gz)
+* [macOS archive](https://github.com/dawidpolakowski/tart/releases/latest/download/tart-macos.tar.gz)
+* [Windows archive](https://github.com/dawidpolakowski/tart/releases/latest/download/tart-windows.zip)
+
+The release archives include the CLI, the Electron desktop app source, installer scripts, and launcher assets.
 
 ## Usage
 
@@ -129,6 +182,49 @@ Show configuration:
 
 ```bash
 tart config
+```
+
+## Desktop Launcher
+
+Install desktop dependencies:
+
+```bash
+npm install
+```
+
+Run the Electron desktop app:
+
+```bash
+npm run desktop
+# or
+./tart-desktop
+```
+
+The desktop app provides:
+
+```text
+Add entry
+Optional ticket or link reference
+This week
+Today
+Raw weekly editor
+Export week as TXT, CSV, or PDF
+Open log directory
+```
+
+Notes:
+
+* it uses the same file format as the CLI
+* it reads `TART_LOGDIR` when set
+* it stores logs in `~/Documents/tart` by default
+* it keeps a tray or menu bar icon active, and minimize or close hides the window there
+* use the tray menu to show the app, open the log directory, or quit
+* it requires Node.js and Electron dependencies installed with `npm install`
+
+Regenerate native desktop icons from the cake-clock source image:
+
+```bash
+npm run icons
 ```
 
 ## Commands
@@ -224,10 +320,10 @@ Example:
 Run the test suite:
 
 ```bash
-./tests/run.sh
+npm test
 ```
 
-The tests are dependency-free Bash smoke and regression tests. They use isolated temporary log directories and pin the current date with `TART_TODAY`.
+The tests include Bash CLI regression tests and Node tests for the Electron desktop core. They use isolated temporary log directories and pin the current date with `TART_TODAY`.
 
 ## Philosophy
 
