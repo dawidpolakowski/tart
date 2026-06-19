@@ -1,0 +1,17 @@
+{
+  "name": "tart",
+  "version": "0.1.0",
+  "description": "TART desktop starter generated from tart",
+  "license": "MIT",
+  "main": "desktop/main.cjs",
+  "scripts": {
+    "desktop": "electron .",
+    "start": "npm run desktop"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "electron": "^42.4.1"
+  }
+}

@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+electron_bin="${script_dir}/node_modules/.bin/electron"
+
+if [[ ! -x "$electron_bin" ]]; then
+  printf 'tart desktop dependencies are missing.\n' >&2
+  printf 'Run this from the tart repo first:\n\n' >&2
+  printf '  npm install\n\n' >&2
+  exit 1
+fi
+
+exec "$electron_bin" "$script_dir" "$@"

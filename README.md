@@ -2,6 +2,8 @@
 
 `tart` is a lightweight command-line tool for logging task activity.
 
+It is open source under the MIT License.
+
 It keeps the daily workflow fast, while presenting a more predictable CLI surface:
 
 * command-based interface
@@ -17,26 +19,159 @@ It keeps the daily workflow fast, while presenting a more predictable CLI surfac
 
 ## Installation
 
-Clone the repository and install the executable:
+### Linux
+
+```bash
+curl -fsSL https://github.com/dawidpolakowski/tart/releases/latest/download/install.sh | bash
+```
+
+### macOS
+
+```bash
+curl -fsSL https://github.com/dawidpolakowski/tart/releases/latest/download/install-macos.sh | bash
+```
+
+The macOS installer puts the CLI in:
+
+```text
+~/.local/bin/tart
+```
+
+It also installs the desktop app in:
+
+```text
+~/Applications/tart.app
+```
+
+The desktop app files live in:
+
+```text
+~/Library/Application Support/tart
+```
+
+The desktop app needs Node.js and npm so the installer can install Electron dependencies. The CLI works without Node.js.
+
+Install from a local clone:
 
 ```bash
 git clone https://github.com/dawidpolakowski/tart.git
 cd tart
-install -m 0755 tart.sh "$HOME/bin/tart"
+./scripts/install-macos.sh
 ```
 
-Make sure `~/bin` is in your `PATH`:
+Choose another CLI install directory:
 
 ```bash
-export PATH="$HOME/bin:$PATH"
+TART_INSTALL_DIR="$HOME/bin" ./scripts/install-macos.sh
 ```
 
-One-line install:
+Choose another desktop app directory:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/dawidpolakowski/tart/main/tart.sh -o /usr/local/bin/tart
-chmod +x /usr/local/bin/tart
+TART_MACOS_APP_DIR="$HOME/Desktop" ./scripts/install-macos.sh
 ```
+
+### Linux Details
+
+The shell installer puts `tart` in:
+
+```text
+~/.local/bin/tart
+```
+
+If `~/.local/bin` is not already in your `PATH`, the installer prints the exact line to add to your shell profile.
+
+Install from a local clone:
+
+```bash
+git clone https://github.com/dawidpolakowski/tart.git
+cd tart
+./scripts/install.sh
+```
+
+Choose another install directory:
+
+```bash
+TART_INSTALL_DIR="$HOME/bin" ./scripts/install.sh
+```
+
+### Windows
+
+Install Git for Windows first, because `tart` runs through Git Bash on Windows.
+
+Then run this in PowerShell:
+
+```powershell
+irm https://github.com/dawidpolakowski/tart/releases/latest/download/install.ps1 | iex
+```
+
+The installer puts `tart` in:
+
+```text
+%LOCALAPPDATA%\tart\bin
+```
+
+It also adds that directory to your user `PATH`. Open a new terminal after installation, then run:
+
+```powershell
+tart version
+```
+
+Install from a local clone:
+
+```powershell
+git clone https://github.com/dawidpolakowski/tart.git
+cd tart
+powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1
+```
+
+### Release Downloads
+
+Latest release assets:
+
+* [Shell installer](https://github.com/dawidpolakowski/tart/releases/latest/download/install.sh)
+* [macOS installer](https://github.com/dawidpolakowski/tart/releases/latest/download/install-macos.sh)
+* [PowerShell installer](https://github.com/dawidpolakowski/tart/releases/latest/download/install.ps1)
+* [Linux archive](https://github.com/dawidpolakowski/tart/releases/latest/download/tart-linux.tar.gz)
+* [macOS archive](https://github.com/dawidpolakowski/tart/releases/latest/download/tart-macos.tar.gz)
+* [Windows archive](https://github.com/dawidpolakowski/tart/releases/latest/download/tart-windows.zip)
+
+The release archives include the CLI, the Electron desktop app source, installer scripts, and launcher assets.
+
+## Project Base
+
+Create a new Electron desktop project scaffold based on `tart`:
+
+```bash
+./scripts/create-project-base.sh "Focus Journal"
+```
+
+By default, the generator writes to `./focus-journal`. You can also choose the output directory explicitly:
+
+```bash
+./scripts/create-project-base.sh "Client Notes" /tmp/client-notes
+```
+
+Project names may include letters, numbers, spaces, dots, underscores, and hyphens.
+
+The generated base includes:
+
+* Electron main, preload, renderer, HTML, and CSS files
+* tray or menu-bar behavior
+* a weekly file-backed activity store under `~/Documents/<project-slug>`
+* starter icons copied from this repo
+* a minimal `package.json`, `.gitignore`, and README
+* `electron` as the only starter dev dependency
+
+After generation:
+
+```bash
+cd focus-journal
+npm install
+npm run desktop
+```
+
+You can also use the generated `README.md` inside the scaffold as a quick checklist for the first customization steps.
 
 ## Usage
 
@@ -84,6 +219,49 @@ Show configuration:
 
 ```bash
 tart config
+```
+
+## Desktop Launcher
+
+Install desktop dependencies:
+
+```bash
+npm install
+```
+
+Run the Electron desktop app:
+
+```bash
+npm run desktop
+# or
+./tart-desktop
+```
+
+The desktop app provides:
+
+```text
+Add entry
+Optional ticket or link reference
+This week
+Today
+Raw weekly editor
+Export week as TXT, CSV, or PDF
+Open log directory
+```
+
+Notes:
+
+* it uses the same file format as the CLI
+* it reads `TART_LOGDIR` when set
+* it stores logs in `~/Documents/tart` by default
+* it keeps a tray or menu bar icon active, and minimize or close hides the window there
+* use the tray menu to show the app, open the log directory, or quit
+* it requires Node.js and Electron dependencies installed with `npm install`
+
+Regenerate native desktop icons from the cake-clock source image:
+
+```bash
+npm run icons
 ```
 
 ## Commands
@@ -179,10 +357,10 @@ Example:
 Run the test suite:
 
 ```bash
-./tests/run.sh
+npm test
 ```
 
-The tests are dependency-free Bash smoke and regression tests. They use isolated temporary log directories and pin the current date with `TART_TODAY`.
+The tests include Bash CLI regression tests and Node tests for the Electron desktop core. They use isolated temporary log directories and pin the current date with `TART_TODAY`.
 
 ## Philosophy
 
