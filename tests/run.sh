@@ -318,6 +318,29 @@ test_desktop_icon_assets_exist() {
   assert_file_nonempty "${ROOT_DIR}/assets/tart-clock-icon.ico"
 }
 
+test_project_base_generator_smoke() {
+  local target_dir package_json readme_html
+
+  target_dir="${TEST_TMPDIR}/focus-journal"
+
+  "${ROOT_DIR}/scripts/create-project-base.sh" "Focus Journal" "$target_dir" >/dev/null || return 1
+
+  assert_file_nonempty "${target_dir}/package.json" || return 1
+  assert_file_nonempty "${target_dir}/README.md" || return 1
+  assert_file_nonempty "${target_dir}/desktop/main.cjs" || return 1
+  assert_file_nonempty "${target_dir}/desktop/app-core.cjs" || return 1
+  assert_file_nonempty "${target_dir}/desktop/index.html" || return 1
+  assert_file_nonempty "${target_dir}/assets/app-icon.png" || return 1
+
+  package_json="$(<"${target_dir}/package.json")"
+  assert_contains "$package_json" '"name": "focus-journal"' || return 1
+  assert_contains "$package_json" '"description": "Focus Journal desktop starter generated from tart"' || return 1
+
+  readme_html="$(<"${target_dir}/README.md")"
+  assert_contains "$readme_html" '# Focus Journal' || return 1
+  assert_contains "$readme_html" '~/Documents/focus-journal' || return 1
+}
+
 test_macos_installer_smoke() {
   local app_dir bin_dir output support_dir
 
@@ -394,6 +417,7 @@ main() {
   run_test "desktop core suite" test_desktop_core_suite
   run_test "desktop renderer suite" test_desktop_renderer_suite
   run_test "desktop icon assets" test_desktop_icon_assets_exist
+  run_test "project base generator" test_project_base_generator_smoke
   run_test "macOS installer smoke" test_macos_installer_smoke
 
   printf '\n%s passed, %s failed\n' "$PASS_COUNT" "$FAIL_COUNT"

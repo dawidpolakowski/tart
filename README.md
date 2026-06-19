@@ -2,6 +2,8 @@
 
 `tart` is a lightweight command-line tool for logging task activity.
 
+It is open source under the MIT License.
+
 It keeps the daily workflow fast, while presenting a more predictable CLI surface:
 
 * command-based interface
@@ -135,6 +137,41 @@ Latest release assets:
 * [Windows archive](https://github.com/dawidpolakowski/tart/releases/latest/download/tart-windows.zip)
 
 The release archives include the CLI, the Electron desktop app source, installer scripts, and launcher assets.
+
+## Project Base
+
+Create a new Electron desktop project scaffold based on `tart`:
+
+```bash
+./scripts/create-project-base.sh "Focus Journal"
+```
+
+By default, the generator writes to `./focus-journal`. You can also choose the output directory explicitly:
+
+```bash
+./scripts/create-project-base.sh "Client Notes" /tmp/client-notes
+```
+
+Project names may include letters, numbers, spaces, dots, underscores, and hyphens.
+
+The generated base includes:
+
+* Electron main, preload, renderer, HTML, and CSS files
+* tray or menu-bar behavior
+* a weekly file-backed activity store under `~/Documents/<project-slug>`
+* starter icons copied from this repo
+* a minimal `package.json`, `.gitignore`, and README
+* `electron` as the only starter dev dependency
+
+After generation:
+
+```bash
+cd focus-journal
+npm install
+npm run desktop
+```
+
+You can also use the generated `README.md` inside the scaffold as a quick checklist for the first customization steps.
 
 ## Usage
 

@@ -1,8 +1,8 @@
 {
   "name": "tart",
   "version": "0.2.0",
-  "private": true,
   "description": "Task Activity Reporting Tool",
+  "license": "MIT",
   "main": "desktop/main.cjs",
   "scripts": {
     "desktop": "electron .",

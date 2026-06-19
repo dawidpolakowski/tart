@@ -47,6 +47,7 @@ jobs:
           bash -n tart.sh
           bash -n tart-desktop
           bash -n tests/run.sh
+          bash -n scripts/create-project-base.sh
           bash -n scripts/install.sh
           bash -n scripts/install-macos.sh
           bash -n scripts/prepare-release.sh

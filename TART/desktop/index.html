@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TART</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <img class="brand__icon" src="../assets/app-icon.png" alt="">
+          <div>
+            <h1>TART</h1>
+            <p id="weekLabel">Loading</p>
+          </div>
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <span class="stat__value" id="weekCount">0</span>
+            <span class="stat__label">Week</span>
+          </div>
+          <div class="stat">
+            <span class="stat__value" id="todayCount">0</span>
+            <span class="stat__label">Today</span>
+          </div>
+        </div>
+
+        <nav class="tabs" aria-label="Views">
+          <button class="tab is-active" data-view="week" type="button">Week</button>
+          <button class="tab" data-view="today" type="button">Today</button>
+          <button class="tab" data-view="edit" type="button">Edit</button>
+        </nav>
+
+        <div class="log-location">
+          <span>Data directory</span>
+          <button id="openLogDirButton" type="button">Open</button>
+        </div>
+        <p class="path" id="logDir">-</p>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">TART desktop starter generated from tart</p>
+            <h2 id="viewTitle">This week</h2>
+          </div>
+          <div class="topbar__actions">
+            <div class="export-actions">
+              <span>Export</span>
+              <button class="ghost-button export-button" data-format="txt" type="button">TXT</button>
+              <button class="ghost-button export-button" data-format="csv" type="button">CSV</button>
+            </div>
+            <button class="ghost-button" id="refreshButton" type="button">Refresh</button>
+          </div>
+        </header>
+
+        <form class="entry-form" id="entryForm">
+          <input id="entryInput" name="entry" autocomplete="off" maxlength="240" placeholder="What happened today?">
+          <input id="referenceInput" name="reference" autocomplete="off" maxlength="180" placeholder="Optional ticket or link">
+          <button type="submit">+ Add</button>
+        </form>
+
+        <p class="status" id="status" role="status"></p>
+
+        <section class="view is-active" id="weekView">
+          <div class="section-heading">
+            <h3>Weekly log</h3>
+            <span id="weekFile">-</span>
+          </div>
+          <div class="entries" id="weekEntries"></div>
+        </section>
+
+        <section class="view" id="todayView">
+          <div class="section-heading">
+            <h3>Today</h3>
+            <span id="todayDate">-</span>
+          </div>
+          <div class="entries" id="todayEntries"></div>
+        </section>
+
+        <section class="view" id="editView">
+          <div class="section-heading">
+            <h3>Raw weekly file</h3>
+            <button class="save-button" id="saveWeekButton" type="button">Save</button>
+          </div>
+          <textarea id="weekEditor" spellcheck="false"></textarea>
+        </section>
+      </main>
+    </div>
+
+    <script src="./renderer.cjs"></script>
+  </body>
+</html>
